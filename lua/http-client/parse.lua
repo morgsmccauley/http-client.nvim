@@ -3,7 +3,8 @@ local test = {
   'content-type: application/json',
   '',
   '{',
-  '"hello": "world"',
+  '  "name": "morgan",',
+  '  "age": 28',
   '}',
   '',
   '###'
@@ -21,3 +22,10 @@ local function parseUrl(line)
 end
 
 print(parseUrl(test[1]))
+
+local function parseHeader(line)
+  local separatorStart, separatorFinish = string.find(line, ':%s+')
+  return line:sub(0, separatorStart - 1), line:sub(separatorFinish + 1)
+end
+
+print(parseHeader(test[2]))
