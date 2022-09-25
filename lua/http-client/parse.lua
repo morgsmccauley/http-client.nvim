@@ -37,3 +37,47 @@ vim.pretty_print(parseBody({
   '  }',
   '}',
 }))
+
+local function parseRequest(lines)
+  local headers = {}
+  local body = nil
+
+  local requestLine = table.remove(lines, 1)
+  local method = parseMethod(requestLine)
+  local url = parseUrl(requestLine)
+
+  repeat
+    local line = table.remove(lines, 1)
+    local header, value = parseHeader(line)
+    headers[header] = value
+  until lines[1] == '' or lines[1] == nil
+
+  local line = table.remove(lines, 1)
+
+  if lines[1] == '{' then
+    local jsonString = ''
+    repeat
+      local line = table.remove(lines, 1)
+      jsonString = jsonString .. line
+    until lines[1] == nil or lines[1] == ''
+    body = vim.fn.json_decode(jsonString)
+  end
+
+  return method, url, headers, body
+end
+
+vim.pretty_print(parseRequest({
+  'POST https://postman-echo.com/post',
+  'content-type: application/json',
+  'origin: neovim',
+  '',
+  '{',
+  '  "name": "morgan",',
+  '  "age": 28,',
+  '  "address": {',
+  '    "number": 123,',
+  '    "street": "fake st",',
+  '    "city": "california"',
+  '  }',
+  '}',
+}))
